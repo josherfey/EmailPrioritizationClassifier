@@ -27,7 +27,7 @@ class_names = model.classes_  # get class labels
 # ------------------------------
 # UI Layout
 # ------------------------------
-st.title("Email Prioriziation Model")
+st.title("Email Prioritization Model")
 
 st.sidebar.header("Input Mode")
 mode = st.sidebar.radio("Choose input mode:", ["Single text input", "CSV upload"])
@@ -50,7 +50,7 @@ if mode == "Single text input":
                 pred_class = model.predict([input_text])[0]
                 pred_proba = model.predict_proba([input_text])[0]
 
-                st.subheader("🔮 Model Prediction")
+                st.subheader("Model Prediction")
                 st.write(f"**Predicted Class:** {pred_class}")
 
                 st.write("**Class Probabilities:**")
