@@ -37,10 +37,9 @@ Notebook training and evaluating model can be found in notebook folder (prioriti
 
 
 #### Single email prediciton
-<img width="847" height="837" alt="Screenshot 2025-10-23 at 4 19 32 PM" src="https://github.com/user-attachments/assets/dfc8a51e-3ed6-4d04-9aa8-3ef632032882" />
-
+<img width="872" height="870" alt="Screenshot 2025-10-23 at 4 43 54 PM" src="https://github.com/user-attachments/assets/cd3a0445-c88d-4f03-a7a3-11103537f70f" />
 
 ##### Batch prediction and evaluation
-<img width="734" height="835" alt="Screenshot 2025-10-23 at 4 20 03 PM" src="https://github.com/user-attachments/assets/748b567c-0b03-4768-a2ad-fa98f2002931" />
+<img width="706" height="695" alt="Screenshot 2025-10-23 at 4 46 07 PM" src="https://github.com/user-attachments/assets/6e206d79-68eb-4777-a74c-f5a269fbbeae" />
 
-<img width="454" height="618" alt="Screenshot 2025-10-23 at 4 20 14 PM" src="https://github.com/user-attachments/assets/575cca75-cb82-47cf-9c15-dca9b3a425be" />
+<img width="609" height="593" alt="Screenshot 2025-10-23 at 4 46 18 PM" src="https://github.com/user-attachments/assets/87052649-af4f-4c4f-a998-ea53da520c4e" />
