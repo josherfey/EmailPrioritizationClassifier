@@ -139,8 +139,11 @@ class EmailPrioritizer:
             raise ValueError(f"Unsupported model_type: {self.model_type}")
         return model, params
 
-    def fit(self, X: List[str], y: List[int], cv: int = 5):
-        # Build pipelines for each column
+    def fit(self, X: List[str], y: List[int], cv: int = 5, sample_weight=None):
+        """
+        Train model using email text and labels.
+        Optionally apply sample weights to emphasize reviewed data.
+        """
         sender_pipeline = Pipeline([
             ('select', FunctionTransformer(lambda X: X['sender'].fillna('').values, validate=False)),
             ('nlp', NLPTransformer(keep_sender=True)),
@@ -166,7 +169,7 @@ class EmailPrioritizer:
         model, params = self._get_model_and_params()
 
         pipeline = Pipeline([
-            ('splitter', EmailSplitter()),  # splits email into sender/subject/body
+            ('splitter', EmailSplitter()),
             ('features', features),
             ('model', model)
         ])
@@ -178,13 +181,29 @@ class EmailPrioritizer:
             cv=cv,
             scoring='f1_weighted',
             n_jobs=-1,
-            verbose=1
+            verbose=1,
         )
+
+        # Note: sample_weight is not supported inside GridSearchCV
         grid_search.fit(X, y)
+        self.pipeline = grid_search.best_estimator_
 
         print(f"\nBest cross-val f1 score: {grid_search.best_score_:.3f}")
         print(f"Best parameters: {grid_search.best_params_}")
-        self.pipeline = grid_search.best_estimator_
+
+        # Retrain the best pipeline on the full dataset with sample weights (if provided)
+        if sample_weight is not None:
+            print("\nRetraining best model on full data with sample weights...")
+            # Handle cases where model is wrapped inside pipeline
+            try:
+                self.pipeline.fit(X, y, model__sample_weight=sample_weight)
+            except TypeError:
+                # fallback if pipeline or model doesn't support sample_weight
+                print("⚠️ sample_weight not supported for this model type. Training without weights.")
+                self.pipeline.fit(X, y)
+        else:
+            self.pipeline.fit(X, y)
+
 
     def predict(self, X: List[str]) -> List[int]:
         if not self.pipeline:

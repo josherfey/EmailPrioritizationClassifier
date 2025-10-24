@@ -126,5 +126,75 @@ Hello Casey Garcia, This is a final reminder: account verification must be compl
                 except Exception as e:
                     st.error(f"Prediction error: {e}")
 
+# ------------------------------
+# Fast Active Learning Review UI (uses 'email' column)
+# ------------------------------
+st.header("⚡ Active Learning: Batch Label Review")
+
+with st.expander("Open Review Tool"):
+    unlabeled_file = st.file_uploader("Upload unlabeled CSV (must contain an 'email' column)", type=["csv"], key="active_fast_csv")
+    if unlabeled_file:
+        df_unlabeled = pd.read_csv(unlabeled_file)
+
+        if "email" not in df_unlabeled.columns:
+            st.error("CSV must contain an 'email' column.")
+        else:
+            st.write("Predicting labels for uploaded data...")
+            try:
+                # Model prediction + uncertainty
+                probs = model.predict_proba(df_unlabeled["email"])
+                preds = model.predict(df_unlabeled["email"])
+                uncertainties = 1 - np.max(probs, axis=1)
+
+                df_unlabeled["predicted_label"] = preds
+                df_unlabeled["uncertainty"] = uncertainties
+                df_unlabeled = df_unlabeled.sort_values(by="uncertainty", ascending=False).reset_index(drop=True)
+
+                # Select how many rows to review
+                num_to_review = st.slider("Rows to review", 5, 100, 20)
+                review_df = df_unlabeled.head(num_to_review)
+
+                st.caption("Select the correct label for each email below:")
+                reviewed_labels = []
+
+                # Build fast table-like layout
+                for idx, row in review_df.iterrows():
+                    with st.container():
+                        cols = st.columns([6, 2, 4])
+                        with cols[0]:
+                            st.markdown(f"**Email {idx+1}:** {row['email']}")
+                        with cols[1]:
+                            st.write(f"Pred: `{row['predicted_label']}`")
+                            st.write(f"Unc: `{row['uncertainty']:.3f}`")
+                        with cols[2]:
+                            chosen = st.radio(
+                                "Label",
+                                class_names,
+                                index=list(class_names).index(row["predicted_label"]) if row["predicted_label"] in class_names else 0,
+                                key=f"radio_{idx}",
+                                horizontal=True
+                            )
+                            reviewed_labels.append(chosen)
+
+                if st.button("Save Reviewed Labels"):
+                    review_df["reviewed_label"] = reviewed_labels
+                    st.session_state["reviewed_data"] = review_df
+                    st.success("✅ Labels reviewed and stored.")
+                    st.dataframe(review_df[["email", "predicted_label", "reviewed_label", "uncertainty"]])
+
+            except Exception as e:
+                st.error(f"Prediction failed: {e}")
+
+    # Export reviewed data
+    if "reviewed_data" in st.session_state:
+        reviewed_data = st.session_state["reviewed_data"]
+        st.download_button(
+            "⬇️ Download reviewed data as CSV",
+            reviewed_data.to_csv(index=False),
+            "reviewed_labels.csv",
+            "text/csv"
+        )
+
+
 st.markdown("---")
 st.caption("Built by Josh Sherfey")
