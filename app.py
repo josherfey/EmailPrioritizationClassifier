@@ -129,7 +129,7 @@ Hello Casey Garcia, This is a final reminder: account verification must be compl
 # ------------------------------
 # Fast Active Learning Review UI (uses 'email' column)
 # ------------------------------
-st.header("⚡ Active Learning: Batch Label Review")
+st.header("Active Learning: Batch Label Review")
 
 with st.expander("Open Review Tool"):
     unlabeled_file = st.file_uploader("Upload unlabeled CSV (must contain an 'email' column)", type=["csv"], key="active_fast_csv")
