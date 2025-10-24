@@ -32,7 +32,7 @@ Model was trained using the synthetic data. Even though there were 10k emails in
 Three models were considered: logistic regression, random forest, and catboost. Given the simple nature of training data, logistic regression performed well enough and was chosen for its simplicity. We can evaluate later to swicth to more complex model as we get more features and labeled real world data
 
 ## Interacting with model
-Included is a streamlet UI to test new email strings or bulk evaluate emails.
+Included is a Streamlit UI to test new email strings or bulk evaluate emails.
 Notebook training and evaluating model can be found in notebook folder (prioritize_emails.ipynb)
 
 ## Improving Performance with Active Learning
@@ -41,13 +41,13 @@ To improve model, active learning can be used to hand label data that the model 
 This active learning is demonstrated in the notebook (prioritize_email.ipynb)
 
 ### Active Learning Workflow
-1. Upload unlabeld data to active learning feature in streamlet
+1. Upload unlabeld data to active learning feature in Streamlit
 2. Hand label the most uncertain cases
 3. Download the csv data of hand labeled data
 4. Retrain the model using the hand labeled data
-5. Publish the trained model to streamlet app
+5. Publish the trained model to Streamlit app
 
-
+## Streamlit Application Overview
 #### Single email prediciton
 UI supports classification of single email input.
 <img width="872" height="870" alt="Screenshot 2025-10-23 at 4 43 54 PM" src="https://github.com/user-attachments/assets/cd3a0445-c88d-4f03-a7a3-11103537f70f" />
