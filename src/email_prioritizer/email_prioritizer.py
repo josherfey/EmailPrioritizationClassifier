@@ -121,7 +121,7 @@ class EmailPrioritizer:
 
     def _get_model_and_params(self):
         if self.model_type == "logistic":
-            model = LogisticRegression(max_iter=1000, multi_class='multinomial', solver='lbfgs')
+            model = LogisticRegression(max_iter=1000, solver='lbfgs')
             params = {"model__C": [0.01, 0.1, 1, 10]}
         elif self.model_type == "random_forest":
             model = RandomForestClassifier(random_state=42)
@@ -186,6 +186,7 @@ class EmailPrioritizer:
 
         # Note: sample_weight is not supported inside GridSearchCV
         grid_search.fit(X, y)
+        print(grid_search.__dict__)
         self.pipeline = grid_search.best_estimator_
 
         print(f"\nBest cross-val f1 score: {grid_search.best_score_:.3f}")
@@ -215,8 +216,9 @@ class EmailPrioritizer:
         Predict class probabilities for each email.
         Returns a 2D array: shape (n_samples, n_classes)
         """
-        if not self.pipeline:
+        if self.pipeline is None:
             raise ValueError("Model not trained. Run .fit() first.")
+        print(self.pipeline)
         if not hasattr(self.pipeline.named_steps['model'], 'predict_proba'):
             raise ValueError(f"The selected model ({self.model_type}) does not support predict_proba.")
         return self.pipeline.predict_proba(X)

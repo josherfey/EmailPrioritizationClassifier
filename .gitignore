@@ -7,3 +7,6 @@ env/
 venv/
 notebooks/catboost_info/
 .DS_Store
+src/email_prioritizer/__pycache__/
+tests/__pycache__/
+src/email_prioritizer.egg-info

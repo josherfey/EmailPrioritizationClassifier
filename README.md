@@ -15,6 +15,7 @@ This model processes simulated **email events** and applies a prioritization lab
   2. `Default`: The default label for generic messages.
   3. `Slow`: The label for non-urgent, promotional messages
 
+
 ### Datasets
 Thee datasets were used:
 - synthetic labeled dat
@@ -34,6 +35,9 @@ Three models were considered: logistic regression, random forest, and catboost. 
 ## Interacting with model
 Included is a Streamlit UI to test new email strings or bulk evaluate emails.
 Notebook training and evaluating model can be found in notebook folder (prioritize_emails.ipynb)
+
+## Testing
+Added testing using pytest. Todo will be to add more coverage of testing: including model performance testing on larger datasets.
 
 ## Improving Performance with Active Learning
 To improve model, active learning can be used to hand label data that the model is most uncertain about. My hand labeling the model, we are able to train the model to new and real datasets. 
@@ -63,3 +67,71 @@ UI supports hand labeling difficult to classify instances to quickly improve mod
 <img width="688" height="829" alt="Screenshot 2025-10-23 at 9 55 06 PM" src="https://github.com/user-attachments/assets/babbea7e-c582-4cfd-bb81-808072443ddd" />
 
 
+## Next Steps
+1. To improve the performance of this model, the most important step would be collect more ground truth data. If we have access to event logs in emails, then we could create a frame work to label data, where we determine email priority based on normal user actions.
+2. Expand feature set to improve model performance
+
+#### Automated Scoring Model to generate labeled data
+We track the following features and create scoring system:
+- Whether the user opened the email (1 pts)
+- Whether the user replied (3 pts)
+- Whether the user forwarded (4 pts)
+- Whether the email was marked important / starred (5 pts)
+- Whether the email was deleted without being opened (-2 pts)
+- Whether the email was marked as spam (-5 pts)
+- Time-to-open (shorter time is more important) (something like (1/x hours) pts)
+
+Translate to score
+- score >= 3: Priorititze
+- score <= 0: Slow
+- otherwise: Default
+
+#### Add new features
+Create new features and add to improve model performance. Potential list of features given below
+- Sender-based features:
+  - Sender domain reputation score (e.g., personal vs corporate vs unknown)
+  - Whether sender is in user's contacts
+  - Whether sender has emailed the user before
+  - Frequency of past communication with sender
+  - Average response time to this sender historically
+  - Whether sender is in same organization / same domain
+  - Sender email alias complexity (spam senders often use random strings)
+
+- Email content features:
+  - Email length (characters or words)
+  - Subject line length
+  - Presence of urgency keywords (e.g., "urgent", "ASAP", "action required")
+  - Presence of question marks (may indicate requests that matter)
+  - Uppercase emphasis count (e.g., words in ALL CAPS)
+  - Link count (higher could signal marketing/spam)
+  - Attachment count (often increases importance)
+
+- Thread / conversation features:
+  - Whether the email is part of an existing conversation thread
+  - Email is reply vs forward vs new thread
+  - Thread depth (number of messages in the conversation)
+  - Whether others replied quickly in the thread (group urgency signal)
+
+- User interaction history features:
+  - Past open rate for this sender
+  - Past reply rate for this sender
+  - Average read time of emails from this sender
+  - Whether the user previously marked similar emails as important
+  - Whether the user archived or ignored similar emails
+
+- Behavioral / temporal features:
+  - Time of day email was received (work hours vs off hours)
+  - Day of week patterns (e.g., newsletters on weekends)
+  - Time-to-open (faster opens may imply higher importance)
+
+- Categorical metadata features:
+  - Email category (e.g., work, personal, finance, notification, newsletter)
+  - Whether the email includes a calendar invite
+  - Whether the email relates to a package delivery or notification
+  - Industry or category of sender domain (e.g., SaaS, retail, finance)
+
+- Message format & tracking features:
+  - Presence of `List-Unsubscribe` header (strong newsletter signal)
+  - Whether the email is plain text vs HTML
+  - Presence of tracking pixel (indicative of marketing)
+  - Presence of email signature block (often human-composed mail)
