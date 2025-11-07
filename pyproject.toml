@@ -5,6 +5,13 @@ description = "Email prioritization classifier with NLP preprocessing and ML pip
 readme = "README.md"
 requires-python = ">=3.9"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
 dependencies = [
     # --- Web App Framework ---
     "streamlit>=1.37.0",
@@ -41,6 +48,3 @@ dev = [
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-where = ["src"]
