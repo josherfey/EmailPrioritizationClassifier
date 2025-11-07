@@ -8,7 +8,7 @@ import dill  # updated import
 import sys
 import os
 
-module_path = os.path.abspath(os.path.join(os.getcwd(), "./email_prioritizer"))
+module_path = os.path.abspath(os.path.join(os.getcwd(), "./src/email_prioritizer"))
 sys.path.append(module_path)
 
 # ------------------------------
