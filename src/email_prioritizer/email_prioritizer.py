@@ -14,6 +14,7 @@ import re
 from typing import List, Union
 
 import pandas as pd
+import numpy as np
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
@@ -186,7 +187,6 @@ class EmailPrioritizer:
 
         # Note: sample_weight is not supported inside GridSearchCV
         grid_search.fit(X, y)
-        print(grid_search.__dict__)
         self.pipeline = grid_search.best_estimator_
 
         print(f"\nBest cross-val f1 score: {grid_search.best_score_:.3f}")
@@ -218,7 +218,7 @@ class EmailPrioritizer:
         """
         if self.pipeline is None:
             raise ValueError("Model not trained. Run .fit() first.")
-        print(self.pipeline)
+        
         if not hasattr(self.pipeline.named_steps['model'], 'predict_proba'):
             raise ValueError(f"The selected model ({self.model_type}) does not support predict_proba.")
         return self.pipeline.predict_proba(X)
@@ -231,4 +231,58 @@ class EmailPrioritizer:
         print(classification_report(y_test, y_pred))
         print("Accuracy:", accuracy_score(y_test, y_pred))
         print("F1 Score:", f1_score(y_test, y_pred, average='weighted'))
+
+    @staticmethod
+    def explain_single_prediction(pipeline, email_text, top_pos=5, top_neg=3,):
+
+        if pipeline is None:
+            raise ValueError("Model not trained. Run .fit() first.")
+            
+        clf = pipeline.named_steps['model']
+
+        # Transform email into vectorized feature space
+        split = pipeline.named_steps['splitter'].transform([email_text])
+        X_vec = pipeline.named_steps['features'].transform(split)
+
+        # Get predicted label
+        pred_class = clf.predict(X_vec)[0]
+        pred_proba = clf.predict_proba(X_vec)[0]
+
+        # Convert label → class index
+        class_index = list(clf.classes_).index(pred_class)
+        coeffs = clf.coef_[class_index]
+
+        # Get TF-IDF vectorizers from FeatureUnion
+        sender_vec = pipeline.named_steps['features'].transformer_list[0][1].named_steps['tfidf']
+        subject_vec = pipeline.named_steps['features'].transformer_list[1][1].named_steps['tfidf']
+        body_vec   = pipeline.named_steps['features'].transformer_list[2][1].named_steps['tfidf']
+
+        feature_names = np.concatenate([
+            sender_vec.get_feature_names_out(),
+            subject_vec.get_feature_names_out(),
+            body_vec.get_feature_names_out()
+        ])
+
+        # Compute contribution = weight * TF-IDF value
+        # values = X_vec.toarray()[0]
+        contrib = X_vec.toarray()[0] * coeffs
+
+        df = pd.DataFrame({"feature": feature_names, "contribution": contrib})
+
+        df_pos = df.sort_values("contribution", ascending=False).head(top_pos)
+        df_neg = df.sort_values("contribution", ascending=True).head(top_neg)
+
+        print(f"\nPredicted Class: {pred_class} (p={pred_proba.max():.0%})")
+
+        print("\nTop Positive Contributions (pushing toward prediction):")
+        print(df_pos.to_string(index=False))
+
+        print("\nTop Negative Contributions (pushing against prediction):")
+        print(df_neg.to_string(index=False))
+        
+        total_contrib = df["contribution"].sum()
+
+        return pred_class, df_pos, df_neg, total_contrib
+
+
 

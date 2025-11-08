@@ -7,9 +7,12 @@ import seaborn as sns
 import dill  # updated import
 import sys
 import os
+from email_prioritizer.email_prioritizer import EmailPrioritizer    
+
 
 module_path = os.path.abspath(os.path.join(os.getcwd(), "./src/email_prioritizer"))
 sys.path.append(module_path)
+
 
 # ------------------------------
 # Load Model
@@ -52,6 +55,30 @@ if mode == "Single text input":
 
                 st.subheader("Model Prediction")
                 st.write(f"**Predicted Class:** {pred_class}")
+
+                # Show class probabilities
+                st.write("**Class Probabilities:**")
+                st.dataframe(pd.DataFrame({
+                    "Class": class_names,
+                    "Probability": np.round(pred_proba, 3)
+                }))
+
+                # 👉 NEW: Explanation Section
+                try:
+                    pred_class, pos_words, neg_words, total_contrib = EmailPrioritizer.explain_single_prediction(email_text=input_text, pipeline=model)
+
+                    st.subheader("Why This Prediction? (Model Explanation)")
+                    st.write(f"**Total Contribution Weight:** `{total_contrib:.3f}` (higher magnitude = stronger confidence)")
+
+                    st.write("### 🔼 Top words increasing support")
+                    st.dataframe(pos_words.style.format({"contribution": "{:.3f}", "weight": "{:.3f}", "value": "{:.3f}"}))
+
+                    st.write("### 🔽 Top words pushing against the prediction")
+                    st.dataframe(neg_words.style.format({"contribution": "{:.3f}", "weight": "{:.3f}", "value": "{:.3f}"}))
+
+                except Exception as e:
+                    st.warning(f"Explanation unavailable: {e}")
+
 
                 st.write("**Class Probabilities:**")
                 st.dataframe(pd.DataFrame({
