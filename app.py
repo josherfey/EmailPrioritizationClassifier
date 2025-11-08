@@ -7,7 +7,7 @@ import seaborn as sns
 import dill  # updated import
 import sys
 import os
-from email_prioritizer.email_prioritizer import EmailPrioritizer    
+from email_prioritizer import EmailPrioritizer    
 
 
 module_path = os.path.abspath(os.path.join(os.getcwd(), "./src/email_prioritizer"))
