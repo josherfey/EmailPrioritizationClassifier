@@ -7,12 +7,11 @@ import seaborn as sns
 import dill  # updated import
 import sys
 import os
-from email_prioritizer import EmailPrioritizer    
-
 
 module_path = os.path.abspath(os.path.join(os.getcwd(), "./src/email_prioritizer"))
 sys.path.append(module_path)
 
+from email_prioritizer import EmailPrioritizer    
 
 # ------------------------------
 # Load Model
