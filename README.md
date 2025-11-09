@@ -1,4 +1,5 @@
 # Prioritize Email Model
+Companion deck with more digestable results found [here](https://docs.google.com/presentation/d/1F8O9uCrnyNvsQQGxTiUupi0AByBsS7RJSSWVvuB2vq4/edit?usp=sharing)
 
 ## Goal
 The goal of this notebook is to demonstrate a basic model to prioritize emails into three buckets: slow, default, priority.
